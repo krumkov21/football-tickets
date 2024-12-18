@@ -6,27 +6,41 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     user: { id: "abc123", name: "Adam Jahr" },
-    categories: [
-      "sustainability",
-      "nature",
-      "animal welfare",
-      "housing",
-      "education",
-      "food",
-      "community",
+    leagues: [
+      "Premier League",
+      "La Liga EA Sports",
+      "Serie A",
+      "Ligue 1 McDonald's",
+      "BundesLiga",
     ],
-    events: [
-      { id: 1, title: "...", organizer: "..." },
-      { id: 2, title: "...", organizer: "..." },
-      { id: 3, title: "...", organizer: "..." },
-      { id: 4, title: "...", organizer: "..." },
-    ],
+    tickets: [],
   },
-  mutations: {},
-  actions: {},
+  mutations: {
+    ADD_TICKET(state, ticket) {
+      state.tickets.push(ticket);
+    },
+    SET_TICKETS(state, tickets) {
+      state.tickets = tickets;
+    },
+  },
+  actions: {
+    createTicket({ commit }, ticket) {
+      return new Promise((resolve, reject) => {
+        try {
+          commit("ADD_TICKET", ticket);
+          resolve(ticket);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    loadTickets({ commit }) {
+      commit("SET_TICKETS", []);
+    },
+  },
   getters: {
-    getEventById: (state) => (id) => {
-      return state.events.find((event) => event.id === id);
+    getTicketById: (state) => (id) => {
+      return state.tickets.find((ticket) => ticket.id === id);
     },
   },
 });

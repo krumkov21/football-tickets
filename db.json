@@ -1,0 +1,37 @@
+{
+  "tickets": [
+    {
+      "id": "b87e",
+      "home": "Manchester United",
+      "guest": "Manchester City",
+      "date": "2024-12-26T14:03:00.000Z",
+      "time": "19:00",
+      "location": "Old Trafford",
+      "league": "Premier League",
+      "seat": "224",
+      "price": "560"
+    },
+    {
+      "id": "88dc",
+      "home": "Real Madrid",
+      "guest": "Barcelona",
+      "date": "2024-12-22T14:06:00.000Z",
+      "time": "16:00",
+      "location": "Santiago Bernabéu",
+      "league": "La Liga EA Sports",
+      "seat": "456",
+      "price": "780"
+    },
+    {
+      "id": "1f0a",
+      "home": "Milan",
+      "guest": "Inter",
+      "date": "2025-01-17T14:07:00.000Z",
+      "time": "22:00",
+      "location": "Stadio Giuseppe Meazza",
+      "league": "Serie A",
+      "seat": "137",
+      "price": "315"
+    }
+  ]
+}

@@ -11,19 +11,20 @@ export default new Router({
   routes: [
     {
       path: "/",
-      name: "tickets-list",
+      name: "ticket-list",
       component: TicketsList,
     },
     {
-      path: "/tickets/create",
-      name: "event-create",
+      path: "/ticket/create",
+      name: "ticket-create",
       component: TicketsCreate,
     },
     {
       path: "/tickets/:id",
-      name: "tickets-show",
+      name: "ticket-show",
       component: TicketsShow,
       props: true,
     },
   ],
 });
+

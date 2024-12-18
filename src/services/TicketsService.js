@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: `http://localhost:3000`,
-  withCredentials: false, // This is the default
+  baseURL: 'http://localhost:3000/',
+  withCredentials: false,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -10,10 +10,13 @@ const apiClient = axios.create({
 });
 
 export default {
-  getEvents() {
-    return apiClient.get("/events");
+  getTickets() {
+    return apiClient.get("/tickets");
   },
-  getEvent(id) {
-    return apiClient.get("/events/" + id);
+  getTicket(id) {
+    return apiClient.get("/tickets/" + id);
+  },
+  postTicket(ticket) {
+    return apiClient.post("/tickets", ticket);
   },
 };
