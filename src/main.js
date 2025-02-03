@@ -3,7 +3,8 @@ import upperFirst from "lodash/upperFirst";
 import camelCase from "lodash/camelCase";
 import App from "./App.vue";
 import router from "./router";
-import store from "./store";
+import store from "../store/store";
+import "nprogress/nprogress.css";
 
 Vue.config.productionTip = false;
 
