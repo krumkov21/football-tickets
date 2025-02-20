@@ -6,6 +6,7 @@ export const state = {
   tickets: [],
   ticketsTotal: 0,
   ticket: {},
+  perPage: 3,
 };
 
 export const mutations = {
@@ -28,6 +29,7 @@ export const actions = {
     return TicketsService.postEvent(ticket)
       .then(() => {
         commit("ADD_TICKET", ticket);
+        commit("SET_TICKET", ticket);
         const notification = {
           type: "success",
           message: "Your event has been created!",
@@ -57,7 +59,7 @@ export const actions = {
         dispatch("notification/add", notification, { root: true });
       });
   },
-  fetchTicket({ commit, getters, dispatch }, id) {
+  fetchTicket({ commit, getters }, id) {
     var ticket = getters.getTicketById(id);
 
     if (ticket) {
@@ -69,13 +71,7 @@ export const actions = {
           commit("SET_TICKET", response.data);
           return response.data;
         })
-        .catch((error) => {
-          const notification = {
-            type: "error",
-            message: "There was a problem fetching ticket: " + error.message,
-          };
-          dispatch("notification/add", notification, { root: true });
-        });
+        
     }
   },
 };

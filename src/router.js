@@ -4,6 +4,7 @@ import TicketsList from "./views/TicketsList.vue";
 import TicketsCreate from "./views/TicketsCreate.vue";
 import TicketsShow from "./views/TicketsShow.vue";
 import NProgress from "nprogress"; // Import NProgress
+import NotFound from "./views/NotFound.vue";
 
 
 Vue.use(Router);
@@ -26,7 +27,16 @@ const router = new Router({
       name: "ticket-show",
       component: TicketsShow,
       props: true,
-  
+    },
+    {
+      path: "/404",
+      name: "404",
+      component: NotFound,
+    },
+    {
+      // Here's the new catch all route
+      path: "*",
+      redirect: { name: "404" },
     },
   ],
 });
