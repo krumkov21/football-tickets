@@ -5,6 +5,7 @@ import TicketsCreate from "./views/TicketsCreate.vue";
 import TicketsShow from "./views/TicketsShow.vue";
 import NProgress from "nprogress"; // Import NProgress
 import NotFound from "./views/NotFound.vue";
+import SortedTable from "./views/SortedTable.vue";
 
 
 Vue.use(Router);
@@ -29,26 +30,29 @@ const router = new Router({
       props: true,
     },
     {
+      path: "/sorted/table",
+      name: "sorted-table",
+      component: SortedTable,
+    },
+    {
       path: "/404",
       name: "404",
       component: NotFound,
     },
     {
-      // Here's the new catch all route
       path: "*",
       redirect: { name: "404" },
     },
   ],
 });
 
-// ✅ Attach global navigation guards to the same `router` instance
 router.beforeEach((routeTo, routeFrom, next) => {
-  NProgress.start(); // Start loading bar
+  NProgress.start();
   next();
 });
 
 router.afterEach(() => {
-  NProgress.done(); // Finish loading bar
+  NProgress.done();
 });
 
-export default router; // ✅ Export the correctly configured router
+export default router;

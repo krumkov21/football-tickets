@@ -1,5 +1,6 @@
 <template>
   <div>
+    <NavBar/>
     <div v-if="loading">Loading ticket details...</div>
     <div v-else-if="error">{{ error }}</div>
     <div v-else>
@@ -23,10 +24,14 @@
 
 
 <script>
+import NavBar from '@/components/NavBar.vue'
 import TicketService from '@/services/TicketsService.js'
 import axios from "axios";
 
 export default {
+  components:{
+    NavBar
+  },
   props: ['id'],
   getTicket(id) {
     return axios.get(`/api/tickets/${id}`); // Make sure the API endpoint is correct

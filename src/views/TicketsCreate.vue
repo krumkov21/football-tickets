@@ -1,5 +1,6 @@
 <template>
   <div>
+    <NavBar/>
     <h1>Create a Match Ticket</h1>
     <form @submit.prevent="createTicket">
       <label>Select a League</label>
@@ -71,11 +72,13 @@
 </template>
 
 <script>
+import NavBar from '@/components/NavBar.vue'
 import TicketsService from '@/services/TicketsService';
 import Datepicker from 'vuejs-datepicker';
 
 export default {
   components: {
+    NavBar,
     Datepicker
   },
   data() {
