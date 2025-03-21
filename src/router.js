@@ -6,6 +6,7 @@ import TicketsShow from "./views/TicketsShow.vue";
 import NProgress from "nprogress"; // Import NProgress
 import NotFound from "./views/NotFound.vue";
 import SortedTable from "./views/SortedTable.vue";
+import SortedTableVuetify from "./views/SortedTableVuetify.vue";
 
 
 Vue.use(Router);
@@ -33,6 +34,11 @@ const router = new Router({
       path: "/sorted/table",
       name: "sorted-table",
       component: SortedTable,
+    },
+    {
+      path: "/sorted/table/vuetify",
+      name: "sorted-table-vuetify",
+      component: SortedTableVuetify,
     },
     {
       path: "/404",

@@ -5,6 +5,7 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store/store";
 import "nprogress/nprogress.css";
+import vuetify from './plugins/vuetify'
 
 Vue.config.productionTip = false;
 
@@ -27,5 +28,6 @@ requireComponent.keys().forEach((fileName) => {
 new Vue({
   router,
   store,
-  render: (h) => h(App),
+  vuetify,
+  render: (h) => h(App)
 }).$mount("#app");

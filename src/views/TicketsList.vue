@@ -6,6 +6,10 @@
     <router-link to="/sorted/table">
       <button>Table</button>
     </router-link>
+    <router-link to="/sorted/table/vuetify">
+      <button>Table 2</button>
+    </router-link>
+  
   </div>
 </template>
 
