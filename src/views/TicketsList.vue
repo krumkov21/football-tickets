@@ -4,12 +4,11 @@
     <h1>Tickets Listing</h1>
     <TicketCard v-for="ticket in tickets" :key="ticket.id" :ticket="ticket" />
     <router-link to="/sorted/table">
-      <button>Table</button>
+      <v-btn variant="outlined"> Table </v-btn>
     </router-link>
     <router-link to="/sorted/table/vuetify">
-      <button>Table 2</button>
+      <v-btn variant="outlined"> Table 2 </v-btn>
     </router-link>
-  
   </div>
 </template>
 

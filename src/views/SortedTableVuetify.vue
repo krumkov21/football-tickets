@@ -1,94 +1,79 @@
 <template>
-  <v-container>
-    <!-- Search Input -->
-    <v-row>
-      <v-col cols="12">
-        <v-text-field
-          v-model="search"
-          label="Search by name, email, or website"
-          clearable
-          outlined
-          class="search-input"
-        ></v-text-field>
-      </v-col>
-    </v-row>
+  <v-app>
+    <v-container fluid>
+  
+      <v-text-field
+        v-model="search"
+        label="Search by name, email, or website"
+        prepend-inner-icon="mdi-magnify"
+        outlined
+        dense
+        clearable
+      ></v-text-field>
 
-    <!-- Data Table -->
-    <v-row>
-      <v-col cols="12">
-        <v-data-table
-          :headers="headers"
-          :items="filteredUsers"
-          item-key="id"
-          class="elevation-1"
-          hide-default-footer
-          :sort-by="sortKey"
-          :sort-desc="[sortOrder === 'desc']"
-          @update:sort-by="onSortUpdate"
-          @update:sort-desc="onSortUpdate"
-          dense
-          fixed-header
-        >
-          <!-- Table Header with Sorting -->
-          <template v-slot:[`column.name`]="{toggleSort }">
-            <span @click="toggleSort('name')" style="cursor: pointer;">
-              Name
-              {{ sortKey === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
-            </span>
-          </template>
+      <v-btn @click="toggleFilters" color="primary" block> Sort By </v-btn>
 
-          <template v-slot:[`column.email`]="{toggleSort }">
-            <span @click="toggleSort('email')" style="cursor: pointer;">
-              Email
-              {{ sortKey === 'email' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
-            </span>
-          </template>
+      <v-row v-if="showFilters">
+        <v-col cols="6">
+          <v-btn @click="sortBy('name')" color="secondary" block>
+            Name
+          </v-btn>
+        </v-col>
+        <v-col cols="6">
+          <v-btn @click="sortBy('email')" color="secondary" block>
+            Email
+          </v-btn>
+        </v-col>
+      </v-row>
 
-          <template v-slot:item="props">
-            <tr>
-              <td>{{ props.item.name }}</td>
-              <td>{{ props.item.username }}</td>
-              <td>{{ props.item.email }}</td>
+      <v-data-table
+        :headers="headers"
+        :items="sortedItems"
+        :loading="loading"
+        class="elevation-1"
+        hide-default-footer
+      >
+        <template v-slot:loading>
+          <v-progress-linear indeterminate color="primary"></v-progress-linear>
+        </template>
 
-              <!-- Address Column with Tooltip -->
-              <td>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <span v-bind="attrs" v-on="on" class="tooltip-container">
-                      {{ props.item.address.city }}
-                    </span>
-                  </template>
-                  <span class="tooltip-text">
-                    📍 {{ props.item.address.street }}, {{ props.item.address.suite }}<br />
-                    🏠 {{ props.item.address.zipcode }}<br />
-                    🌍 Geo: ({{ props.item.address.geo.lat }}, {{ props.item.address.geo.lng }})
-                  </span>
-                </v-tooltip>
-              </td>
-
-              <td>{{ props.item.phone }}</td>
-              <td>{{ props.item.website }}</td>
-
-              <!-- Company Column with Tooltip -->
-              <td>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <span v-bind="attrs" v-on="on" class="tooltip-container">
-                      {{ props.item.company.name }}
-                    </span>
-                  </template>
-                  <span class="tooltip-text">
-                    {{ props.item.company.catchPhrase }}<br />
-                    {{ props.item.company.bs }}
-                  </span>
-                </v-tooltip>
-              </td>
-            </tr>
-          </template>
-        </v-data-table>
-      </v-col>
-    </v-row>
-  </v-container>
+        <template v-slot:item="props">
+          <tr>
+            <td>{{ props.item.name }}</td>
+            <td>{{ props.item.username }}</td>
+            <td>{{ props.item.email }}</td>
+            <td>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <span v-bind="attrs" v-on="on">{{ props.item.address.city }}</span>
+                </template>
+                <span>
+                  📍 {{ props.item.address.street }},
+                  {{ props.item.address.suite }}<br />
+                  🏠 {{ props.item.address.zipcode }}<br />
+                  🌍 Geo: ({{ props.item.address.geo.lat }},
+                  {{ props.item.address.geo.lng }})
+                </span>
+              </v-tooltip>
+            </td>
+            <td>{{ props.item.phone }}</td>
+            <td>{{ props.item.website }}</td>
+            <td>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <span v-bind="attrs" v-on="on">{{ props.item.company.name }}</span>
+                </template>
+                <span>
+                  {{ props.item.company.catchPhrase }}<br />
+                  {{ props.item.company.bs }}
+                </span>
+              </v-tooltip>
+            </td>
+          </tr>
+        </template>
+      </v-data-table>
+    </v-container>
+  </v-app>
 </template>
 
 <script>
@@ -97,129 +82,85 @@ import axios from "axios";
 export default {
   data() {
     return {
-      users: [],
       search: "",
-      sortOrder: "asc",
-      sortKey: "name",
+      sortKey: "",
+      sortOrder: 1,
+      showFilters: false,
       headers: [
-        { text: "Name", align: "start", key: "name", sortable: true },
-        { text: "Username", align: "start", key: "username", sortable: false },
-        { text: "Email", align: "start", key: "email", sortable: true },
-        { text: "Address", align: "start", key: "address", sortable: false },
-        { text: "Phone", align: "start", key: "phone", sortable: false },
-        { text: "Website", align: "start", key: "website", sortable: false },
-        { text: "Company", align: "start", key: "company", sortable: false },
+        { text: "Name", value: "name", sortable: false },
+        { text: "Username", value: "username", sortable: false },
+        { text: "Email", value: "email", sortable: false },
+        { text: "Adress", value: "address.city", sortable: false },
+        { text: "Phone", value: "phone", sortable: false },
+        { text: "Website", value: "website", sortable: false },
+        { text: "Company", value: "company.name", sortable: false },
       ],
+      items: [],
+      loading: false,
     };
   },
   computed: {
-    filteredUsers() {
-      return this.users.filter((user) =>
-        `${user.name} ${user.website} ${user.email}`
-          .toLowerCase()
-          .includes(this.search.toLowerCase())
+    filteredItems() {
+      if (!this.search) return this.items;
+      const lowerSearch = this.search.toLowerCase();
+      return this.items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(lowerSearch) ||
+          item.email.toLowerCase().includes(lowerSearch) ||
+          item.website.toLowerCase().includes(lowerSearch)
+      );
+    },
+    sortedItems() {
+      if (!this.sortKey) return this.filteredItems;
+      return [...this.filteredItems].sort(
+        (a, b) =>
+          a[this.sortKey].localeCompare(b[this.sortKey]) * this.sortOrder
       );
     },
   },
+  mounted() {
+    this.fetchData();
+  },
   methods: {
-    toggleSortOrder(column) {
-      if (this.sortKey === column) {
-        this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+    fetchData() {
+      this.loading = true;
+      axios
+        .get("https://jsonplaceholder.typicode.com/users")
+        .then((response) => {
+          this.items = response.data;
+        })
+        .catch((error) => {
+          console.error("Error fetching users:", error);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    sortBy(key) {
+      if (this.sortKey === key) {
+        this.sortOrder *= -1;
       } else {
-        this.sortKey = column;
-        this.sortOrder = "asc";
+        this.sortKey = key;
+        this.sortOrder = 1;
       }
     },
-    onSortUpdate() {
-      this.sortUsers();
+    getSortIcon(key) {
+      if (this.sortKey !== key) return "";
+      return this.sortOrder === 1 ? "↑" : "↓";
     },
-    sortUsers() {
-      this.users.sort((a, b) => {
-        if (this.sortKey === "name") {
-          return this.sortOrder === "asc"
-            ? a.name.localeCompare(b.name)
-            : b.name.localeCompare(a.name);
-        } else if (this.sortKey === "email") {
-          return this.sortOrder === "asc"
-            ? a.email.localeCompare(b.email)
-            : b.email.localeCompare(a.email);
-        }
-        return 0;
-      });
+    toggleFilters() {
+      this.showFilters = !this.showFilters;
     },
-  },
-  created() {
-    axios
-      .get("https://jsonplaceholder.typicode.com/users")
-      .then((response) => (this.users = response.data))
-      .catch((error) => console.error("Error fetching users:", error));
   },
 };
 </script>
 
 <style scoped>
-/* General container and input styling */
-.search-input {
-  margin-bottom: 20px;
-  width: 100%;
-  max-width: 500px;
-  background-color: #fff;
-}
-
 .v-container {
-  padding: 20px;
-  background-color: #f5f5f5;
-  border-radius: 10px;
+  height: 100%;
 }
 
-/* Styling for table and data rows */
-.v-data-table {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-
+.v-data-table-header .v-sortable {
+  display: none !important;
 }
-
-.v-data-table th {
-  background-color: #f1f1f1;
-  text-align: left;
-  padding: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.v-data-table th:hover {
-  background-color: #e3e3e3;
-}
-
-.v-data-table td {
-  padding: 10px;
-  color: #333;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.v-data-table tr:hover {
-  background-color: #f9f9f9;
-}
-
-/* Tooltip styling */
-.tooltip-container {
-  position: relative;
-  cursor: pointer;
-  color: #007bff;
-  font-weight: bold;
-}
-
-.tooltip-container:hover {
-  text-decoration: underline;
-}
-
-/* Styling for Vuetify Tooltip */
-.v-tooltip__content {
-  font-size: 14px;
-  max-width: 300px;
-  white-space: normal;
-}
-
 </style>
