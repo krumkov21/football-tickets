@@ -1,79 +1,58 @@
 <template>
-  <v-app>
-    <v-container fluid>
-  
-      <v-text-field
-        v-model="search"
-        label="Search by name, email, or website"
-        prepend-inner-icon="mdi-magnify"
-        outlined
-        dense
-        clearable
-      ></v-text-field>
+  <v-container class="pa-4">
+    <v-card class="custom-card" flat elevation="3">
+      <v-card-title>Table 2</v-card-title>
 
-      <v-btn @click="toggleFilters" color="primary" block> Sort By </v-btn>
-
-      <v-row v-if="showFilters">
-        <v-col cols="6">
-          <v-btn @click="sortBy('name')" color="secondary" block>
-            Name
-          </v-btn>
-        </v-col>
-        <v-col cols="6">
-          <v-btn @click="sortBy('email')" color="secondary" block>
-            Email
-          </v-btn>
-        </v-col>
-      </v-row>
+      <v-card-text>
+        <v-text-field
+          v-model="search"
+          label="Search by name, email, or website"
+          prepend-inner-icon="mdi-magnify"
+          outlined
+          hide-details
+          class="custom-search"
+        ></v-text-field>
+      </v-card-text>
 
       <v-data-table
         :headers="headers"
-        :items="sortedItems"
-        :loading="loading"
-        class="elevation-1"
-        hide-default-footer
+        :items="users"
+        :search="search"
+        :custom-filter="customFilter"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
+        class="custom-table"
+        dense
       >
-        <template v-slot:loading>
-          <v-progress-linear indeterminate color="primary"></v-progress-linear>
+        <template v-slot:[`item.address`]="{ item }">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span v-bind="attrs" v-on="on" class="tooltip-text">
+                {{ item.address.city }}
+              </span>
+            </template>
+            <span
+              >📍 {{ item.address.street }}, {{ item.address.suite }}<br />
+              🏠 {{ item.address.zipcode }}<br />
+              🌍 Geo: ({{ item.address.geo.lat }},
+              {{ item.address.geo.lng }})</span
+            >
+          </v-tooltip>
         </template>
 
-        <template v-slot:item="props">
-          <tr>
-            <td>{{ props.item.name }}</td>
-            <td>{{ props.item.username }}</td>
-            <td>{{ props.item.email }}</td>
-            <td>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                  <span v-bind="attrs" v-on="on">{{ props.item.address.city }}</span>
-                </template>
-                <span>
-                  📍 {{ props.item.address.street }},
-                  {{ props.item.address.suite }}<br />
-                  🏠 {{ props.item.address.zipcode }}<br />
-                  🌍 Geo: ({{ props.item.address.geo.lat }},
-                  {{ props.item.address.geo.lng }})
-                </span>
-              </v-tooltip>
-            </td>
-            <td>{{ props.item.phone }}</td>
-            <td>{{ props.item.website }}</td>
-            <td>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                  <span v-bind="attrs" v-on="on">{{ props.item.company.name }}</span>
-                </template>
-                <span>
-                  {{ props.item.company.catchPhrase }}<br />
-                  {{ props.item.company.bs }}
-                </span>
-              </v-tooltip>
-            </td>
-          </tr>
+        <template v-slot:[`item.company`]="{ item }">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span v-bind="attrs" v-on="on" class="tooltip-text">
+                {{ item.company.name }}
+              </span>
+            </template>
+            <span>{{ item.company.catchPhrase }}</span>
+          </v-tooltip>
         </template>
       </v-data-table>
-    </v-container>
-  </v-app>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
@@ -83,84 +62,96 @@ export default {
   data() {
     return {
       search: "",
-      sortKey: "",
-      sortOrder: 1,
-      showFilters: false,
+      users: [],
+      sortBy: "name",
+      sortDesc: false,
       headers: [
-        { text: "Name", value: "name", sortable: false },
+        { text: "Name", value: "name", sortable: true },
         { text: "Username", value: "username", sortable: false },
-        { text: "Email", value: "email", sortable: false },
-        { text: "Adress", value: "address.city", sortable: false },
+        { text: "Email", value: "email", sortable: true },
+        { text: "Address", value: "address", sortable: false },
         { text: "Phone", value: "phone", sortable: false },
         { text: "Website", value: "website", sortable: false },
-        { text: "Company", value: "company.name", sortable: false },
+        { text: "Company", value: "company", sortable: false },
       ],
-      items: [],
-      loading: false,
     };
   },
-  computed: {
-    filteredItems() {
-      if (!this.search) return this.items;
-      const lowerSearch = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(lowerSearch) ||
-          item.email.toLowerCase().includes(lowerSearch) ||
-          item.website.toLowerCase().includes(lowerSearch)
-      );
-    },
-    sortedItems() {
-      if (!this.sortKey) return this.filteredItems;
-      return [...this.filteredItems].sort(
-        (a, b) =>
-          a[this.sortKey].localeCompare(b[this.sortKey]) * this.sortOrder
-      );
-    },
-  },
   mounted() {
-    this.fetchData();
+    this.fetchUsers();
   },
   methods: {
-    fetchData() {
-      this.loading = true;
-      axios
-        .get("https://jsonplaceholder.typicode.com/users")
-        .then((response) => {
-          this.items = response.data;
-        })
-        .catch((error) => {
-          console.error("Error fetching users:", error);
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    },
-    sortBy(key) {
-      if (this.sortKey === key) {
-        this.sortOrder *= -1;
-      } else {
-        this.sortKey = key;
-        this.sortOrder = 1;
+    async fetchUsers() {
+      try {
+        const response = await axios.get(
+          "https://jsonplaceholder.typicode.com/users"
+        );
+        this.users = response.data;
+      } catch (error) {
+        console.error("Error fetching users:", error);
       }
     },
-    getSortIcon(key) {
-      if (this.sortKey !== key) return "";
-      return this.sortOrder === 1 ? "↑" : "↓";
+    customFilter(value, search, user) {
+      if (!search) return true;
+      search = search.toLowerCase();
+      return (
+        user.name.toLowerCase().includes(search) ||
+        user.email.toLowerCase().includes(search) ||
+        user.website.toLowerCase().includes(search)
+      );
     },
-    toggleFilters() {
-      this.showFilters = !this.showFilters;
+    sortData(field) {
+      if (this.sortBy === field) {
+        this.sortDesc = !this.sortDesc;
+      } else {
+        this.sortBy = field;
+        this.sortDesc = false;
+      }
     },
   },
 };
 </script>
 
 <style scoped>
-.v-container {
-  height: 100%;
+.custom-card {
+  border-radius: 12px;
+  padding: 20px;
+  background-color: #f8f9fa;
 }
 
-.v-data-table-header .v-sortable {
-  display: none !important;
+.custom-search {
+  max-width: 300px;
+  margin-bottom: 10px;
+}
+
+.custom-table {
+  border-radius: 10px;
+  background-color: white;
+}
+
+.custom-table >>> tbody tr:nth-child(odd) {
+  background-color: #f3f4f6;
+}
+
+.custom-table >>> tbody tr:hover {
+  background-color: #e0e0e0;
+  transition: 0.3s;
+}
+
+.tooltip-text {
+  cursor: pointer;
+  text-decoration: underline;
+  position: relative;
+  z-index: 10;
+}
+
+.v-tooltip__content {
+  z-index: 1000 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.v-tooltip__content--bottom {
+  transform: translateY(10px) !important;
 }
 </style>
